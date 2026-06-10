@@ -62,7 +62,21 @@
   function clamp(val: number, min: number, max: number) {
     return Math.max(min, Math.min(max, val));
   }
+
+  function handleKey(e: KeyboardEvent) {
+    if ((e.target as HTMLElement).tagName === 'INPUT') return;
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (phase === 'running') pause();
+      else if (phase === 'idle' || phase === 'paused') start();
+      else if (phase === 'done') reset();
+    } else if (e.key === 'r' || e.key === 'R') {
+      if (phase !== 'idle') reset();
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handleKey} />
 
 <div class="timer" class:done={phase === 'done'}>
   <div class="display" class:pulse={phase === 'done'}>

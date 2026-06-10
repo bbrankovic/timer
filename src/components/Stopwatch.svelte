@@ -38,7 +38,21 @@
     baseMs = 0;
     laps = [];
   }
+
+  function handleKey(e: KeyboardEvent) {
+    if ((e.target as HTMLElement).tagName === 'INPUT') return;
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (running) stop(); else start();
+    } else if (e.key === 'r' || e.key === 'R') {
+      if (elapsedMs > 0 && !running) reset();
+    } else if (e.key === 'l' || e.key === 'L') {
+      lap();
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handleKey} />
 
 <div class="stopwatch">
   <div class="display">
