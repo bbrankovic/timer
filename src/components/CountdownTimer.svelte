@@ -19,6 +19,7 @@
   let displayMs = $state(0);
 
   let intervalId = 0;
+  let stopAlarm: (() => void) | null = null;
 
   $effect(() => {
     // Keep display in sync with input while idle
@@ -39,7 +40,7 @@
       displayMs = 0;
       clearInterval(intervalId);
       phase = 'done';
-      playAlarm();
+      stopAlarm = playAlarm();
     } else {
       displayMs = remaining;
     }
@@ -54,6 +55,8 @@
 
   function reset() {
     clearInterval(intervalId);
+    stopAlarm?.();
+    stopAlarm = null;
     phase = 'idle';
     displayMs = totalMs;
     snapshotMs = 0;
@@ -69,7 +72,7 @@
       e.preventDefault();
       if (phase === 'running') pause();
       else if (phase === 'idle' || phase === 'paused') start();
-      else if (phase === 'done') reset();
+      else if (phase === 'done') { stopAlarm?.(); stopAlarm = null; reset(); }
     } else if (e.key === 'r' || e.key === 'R') {
       if (phase !== 'idle') reset();
     }
@@ -132,7 +135,7 @@
   </div>
 
   {#if phase === 'done'}
-    <p class="done-msg">Zeit abgelaufen!</p>
+    <p class="done-msg">Zeit abgelaufen! <span class="done-hint">Space zum Beenden</span></p>
   {/if}
 </div>
 
@@ -217,5 +220,11 @@
     font-size: 1.1rem;
     color: var(--color-alarm);
     font-weight: 500;
+  }
+
+  .done-hint {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--color-muted);
   }
 </style>
